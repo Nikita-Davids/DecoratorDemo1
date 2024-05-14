@@ -1,9 +1,24 @@
 ﻿using System;
-
-public abstract class Vehicle
+using System.Linq.Expressions;
+namespace DecoratorAssignment
+{
+    public abstract class Vehicle
 {
     public abstract string GetDescription();
     public abstract double GetCost();
+  
+}
+abstract class VehicleDecorator : Vehicle //DecoratorBase
+{
+    Vehicle Vehicle = null;
+    public VehicleDecorator(Vehicle vehicle)
+    {
+        this.Vehicle = vehicle;
+    }
+    public override string GetDescription()
+    {
+        return Vehicle.GetDescription();
+    }
 }
 
 public class MotorBike : Vehicle
@@ -15,10 +30,9 @@ public class MotorBike : Vehicle
 
     public override double GetCost()
     {
-        return 0; // Base cost of the vehicle, assuming zero for simplicity
+        return 0; 
     }
 }
-
 public class LightMotorVehicle : Vehicle
 {
     public override string GetDescription()
@@ -28,7 +42,7 @@ public class LightMotorVehicle : Vehicle
 
     public override double GetCost()
     {
-        return 0;
+        return 200;
     }
 }
 
@@ -41,164 +55,78 @@ public class HeavyMotorVehicle : Vehicle
 
     public override double GetCost()
     {
-        return 0;
+        return 400;
     }
 }
-
-public abstract class VehicleDecorator : Vehicle
+class SoundSystem : VehicleDecorator//ConcreteDecorator
 {
-    protected Vehicle _vehicle;
-
-    public VehicleDecorator(Vehicle vehicle)
+    Vehicle vehicle;
+    public SoundSystem(Vehicle vehicle) : base(vehicle)
     {
-        _vehicle = vehicle;
+        this.vehicle = vehicle;
     }
-
     public override string GetDescription()
     {
-        return _vehicle.GetDescription();
+        return vehicle.GetDescription() + ", Sound System";
     }
-
     public override double GetCost()
     {
-        return _vehicle.GetCost();
+        return vehicle.GetCost() + 1000;
     }
 }
-
-public class SoundSystem : VehicleDecorator
+class Wifi : VehicleDecorator//ConcreteDecorator
 {
-    public SoundSystem(Vehicle vehicle) : base(vehicle) { }
-
+    Vehicle vehicle;
+    public Wifi(Vehicle vehicle) : base(vehicle)
+    {
+        this.vehicle = vehicle;
+    }
     public override string GetDescription()
     {
-        return _vehicle.GetDescription() + " + Sound System";
+        return vehicle.GetDescription() + ", Wi-fi";
     }
-
     public override double GetCost()
     {
-        return _vehicle.GetCost() + GetSoundSystemCost();
-    }
-
-    private double GetSoundSystemCost()
-    {
-        if (_vehicle is MotorBike) return 1000;
-        if (_vehicle is LightMotorVehicle) return 1200;
-        if (_vehicle is HeavyMotorVehicle) return 1400;
-        return 0;
+        return vehicle.GetCost() + 750;
     }
 }
-
-public class WiFi : VehicleDecorator
+class Camera : VehicleDecorator//ConcreteDecorator
 {
-    public WiFi(Vehicle vehicle) : base(vehicle) { }
-
+    Vehicle vehicle;
+    public Camera(Vehicle vehicle) : base(vehicle)
+    {
+        this.vehicle = vehicle;
+    }
     public override string GetDescription()
     {
-        return _vehicle.GetDescription() + " + Wi-Fi";
+        return vehicle.GetDescription() + ", Camera";
     }
-
     public override double GetCost()
     {
-        return _vehicle.GetCost() + GetWiFiCost();
-    }
-
-    private double GetWiFiCost()
-    {
-        if (_vehicle is MotorBike) return 750;
-        if (_vehicle is LightMotorVehicle) return 950;
-        if (_vehicle is HeavyMotorVehicle) return 1000;
-        return 0;
+        return vehicle.GetCost() + 400;
     }
 }
-
-public class Camera : VehicleDecorator
-{
-    public Camera(Vehicle vehicle) : base(vehicle) { }
-
-    public override string GetDescription()
+    class Program
     {
-        return _vehicle.GetDescription() + " + Camera";
-    }
-
-    public override double GetCost()
-    {
-        return _vehicle.GetCost() + GetCameraCost();
-    }
-
-    private double GetCameraCost()
-    {
-        if (_vehicle is MotorBike) return 200;
-        if (_vehicle is LightMotorVehicle) return 400;
-        if (_vehicle is HeavyMotorVehicle) return 600;
-        return 0;
-    }
-}
-
-public class Program
-{
-    public static void Main(string[] args)
-    {
-        Console.WriteLine("Select a vehicle:");
-        Console.WriteLine("1. MotorBike");
-        Console.WriteLine("2. Light Motor Vehicle");
-        Console.WriteLine("3. Heavy Motor Vehicle");
-
-        int vehicleChoice = int.Parse(Console.ReadLine());
-
-        Vehicle selectedVehicle = null;
-        switch (vehicleChoice)
+        static void Main(string[] args)
         {
-            case 1:
-                selectedVehicle = new MotorBike();
-                break;
-            case 2:
-                selectedVehicle = new LightMotorVehicle();
-                break;
-            case 3:
-                selectedVehicle = new HeavyMotorVehicle();
-                break;
-            default:
-                Console.WriteLine("Invalid selection");
-                return;
+            Vehicle beverage = new MotorBike();
+            beverage = new SoundSystem(beverage);
+            beverage = new Wifi(beverage);
+            beverage = new Camera(beverage);
+            Console.WriteLine(beverage.GetDescription() + " " + beverage.GetCost().ToString("C"));
+
+            Vehicle beverage2 = new LightMotorVehicle();
+            beverage2 = new Wifi(beverage2);
+            beverage2 = new Camera(beverage2);
+            Console.WriteLine(beverage2.GetDescription() + " " + beverage2.GetCost().ToString("C"));
+
+            Vehicle beverage3 = new HeavyMotorVehicle();
+            beverage3 = new Camera(beverage3);
+            Console.WriteLine(beverage3.GetDescription() + " " + beverage3.GetCost().ToString("C"));
+
+            Console.ReadLine();
         }
-
-        Console.WriteLine("Select options to add:");
-        Console.WriteLine("1. Sound System");
-        Console.WriteLine("2. Wi-Fi");
-        Console.WriteLine("3. Camera");
-        Console.WriteLine("4. All options");
-        Console.WriteLine("5. No options");
-
-        int optionChoice = int.Parse(Console.ReadLine());
-
-        switch (optionChoice)
-        {
-            case 1:
-                selectedVehicle = new SoundSystem(selectedVehicle);
-                break;
-            case 2:
-                selectedVehicle = new WiFi(selectedVehicle);
-                break;
-            case 3:
-                selectedVehicle = new Camera(selectedVehicle);
-                break;
-            case 4:
-                selectedVehicle = new SoundSystem(new WiFi(new Camera(selectedVehicle)));
-                break;
-            case 5:
-                break;
-            default:
-                Console.WriteLine("Invalid selection");
-                return;
-        }
-
-        DisplayVehicleOptions(selectedVehicle);
-    }
-
-    public static void DisplayVehicleOptions(Vehicle vehicle)
-    {
-        Console.WriteLine($"Options for {vehicle.GetDescription()}:");
-        Console.WriteLine($"Total cost: R{vehicle.GetCost()}");
     }
 }
 
